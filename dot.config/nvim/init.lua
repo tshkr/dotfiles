@@ -32,6 +32,7 @@ vim.g.loaded_netrwPlugin = 1
 -- 基本的な設定
 vim.o.synmaxcol = 200  -- syntax highlighting で動作を軽くする。
 vim.o.number = true  -- 左に番号を表示する。
+vim.o.relativenumber = true  -- 番号を相対表示にする。
 vim.o.clipboard = 'unnamedplus' -- クリップボードを使えるようにする。
 vim.o.visualbell = true  -- ベルを画面フラッシュにする。
 vim.o.virtualedit = 'block' -- 矩形選択で文字が無くても右へ進めるようにする。
@@ -209,6 +210,19 @@ return require('packer').startup(function(use)
     use("nvim-telescope/telescope-smart-history.nvim")
     use("nvim-telescope/telescope-media-files.nvim")
     use("LinArcX/telescope-command-palette.nvim")
+
+    -- require('telescope').setup{
+    --     defaults = {
+    --         theme = 'dropdown',
+    --     }
+    -- }
+
+    vim.cmd[[nnoremap <Leader>uu :lua require'telescope.builtin'.find_files()<cr>]]
+    vim.cmd[[nnoremap <Leader>ub :lua require'telescope.builtin'.buffers()<cr>]]
+    vim.cmd[[nnoremap <Leader>uh :lua require'telescope.builtin'.help_tags()<cr>]]
+    -- vim.cmd[[nnoremap <Leader>uu :lua require'telescope.builtin'.find_files(require('telescope.themes').get_dropdown({}))<cr>]]
+    -- vim.cmd[[nnoremap <Leader>ub :lua require'telescope.builtin'.buffers(require('telescope.themes').get_dropdown({}))<cr>]]
+    -- vim.cmd[[nnoremap <Leader>uh :lua require'telescope.builtin'.help_tags(require('telescope.themes').get_dropdown({}))<cr>]]
 
     use("nvim-treesitter/nvim-treesitter")
     -- use("JoosepAlviste/nvim-ts-context-commentstring")
@@ -539,5 +553,36 @@ return require('packer').startup(function(use)
         post_hook = nil,
 
     }
+
+    use {
+        "akinsho/toggleterm.nvim",
+        tag = '*',
+        config = function()
+            require("toggleterm").setup{
+                -- size = 30 | function(term)
+                --     if term.direction == "horizontal" then
+                --         return 15
+                --     elseif term.direction == "vertical" then
+                --         return vim.o.columns * 0.4
+                --     end
+                -- end,
+                size = 30,
+                open_mapping = [[<Leader>t]],
+                hide_numbers = true,
+                terminal_mappings = true,
+            }
+        end,
+    }
+    function _G.set_terminal_keymaps()
+        local opts = {buffer = 0}
+        vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
+        vim.keymap.set('t', 'jk', [[<C-\><C-n>]], opts)
+        vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
+        vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
+        vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd k<CR>]], opts)
+        vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
+    end
+    vim.cmd[[autocmd! TermOpen term://* lua set_terminal_keymaps()]]
+    keymap('n', '<Leader>t', '<cmd>ToggleTerm size=40<CR>', {noremap=true})
 
 end)
