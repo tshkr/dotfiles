@@ -135,7 +135,7 @@ vim.o.signcolumn = "yes"
 vim.o.ignorecase = true
 vim.o.smartcase = true
 
-vim.o.scrolloff = 4
+vim.o.scrolloff = 2
 
 vim.o.laststatus = 3
 
@@ -162,6 +162,8 @@ return require('packer').startup(function(use)
     -- Packer can manage itself
 
     use 'wbthomason/packer.nvim'
+    use 'lewis6991/impatient.nvim'
+    require('impatient')
 
     use("kyazdani42/nvim-web-devicons")
     use("nvim-lua/popup.nvim")
@@ -570,6 +572,8 @@ return require('packer').startup(function(use)
                 open_mapping = [[<Leader>t]],
                 hide_numbers = true,
                 terminal_mappings = true,
+                insert_mappings = false,
+                auto_scroll = false,
             }
         end,
     }
