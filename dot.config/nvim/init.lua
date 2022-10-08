@@ -219,7 +219,7 @@ return require('packer').startup(function(use)
     --     }
     -- }
 
-    vim.cmd[[nnoremap <Leader>uu :lua require'telescope.builtin'.find_files()<cr>]]
+    vim.cmd[[nnoremap <Leader>p :lua require'telescope.builtin'.find_files()<cr>]]
     vim.cmd[[nnoremap <Leader>ub :lua require'telescope.builtin'.buffers()<cr>]]
     vim.cmd[[nnoremap <Leader>uh :lua require'telescope.builtin'.help_tags()<cr>]]
     -- vim.cmd[[nnoremap <Leader>uu :lua require'telescope.builtin'.find_files(require('telescope.themes').get_dropdown({}))<cr>]]
@@ -379,9 +379,9 @@ return require('packer').startup(function(use)
     -- Reference highlight
     vim.cmd [[
         set updatetime=500
-        highlight LspReferenceText  cterm=underline ctermfg=1 ctermbg=8 gui=underline guifg=#A00000 guibg=#104040
-        highlight LspReferenceRead  cterm=underline ctermfg=1 ctermbg=8 gui=underline guifg=#A00000 guibg=#104040
-        highlight LspReferenceWrite cterm=underline ctermfg=1 ctermbg=8 gui=underline guifg=#A00000 guibg=#104040
+        " highlight LspReferenceText  cterm=underline ctermfg=1 ctermbg=8 gui=underline guifg=#A00000 guibg=#104040
+        " highlight LspReferenceRead  cterm=underline ctermfg=1 ctermbg=8 gui=underline guifg=#A00000 guibg=#104040
+        " highlight LspReferenceWrite cterm=underline ctermfg=1 ctermbg=8 gui=underline guifg=#A00000 guibg=#104040
         augroup lsp_document_highlight
         autocmd!
         autocmd CursorHold,CursorHoldI * lua vim.lsp.buf.document_highlight()
@@ -461,6 +461,11 @@ return require('packer').startup(function(use)
     vim.cmd[[let g:sonokai_style = 'atlantis']]
     vim.cmd[[let g:sonokai_better_performance = 1]]
 
+    use{'sainnhe/everforest'}
+    vim.cmd[[
+        let g:everforest_background = 'hard'
+        let g:everforest_better_performance = 1
+    ]]
 
     -- vim.cmd[[colorscheme gruvbox-material]]
     vim.cmd[[
@@ -469,6 +474,7 @@ return require('packer').startup(function(use)
         autocmd ColorScheme * hi cursorline term=none cterm=none gui=none  ctermfg=none  ctermbg=235 guifg=none guibg=#292929
         autocmd ColorScheme * hi EndOfBuffer  ctermfg=237 ctermbg=235 guibg=#222222
         autocmd ColorScheme * hi VertSplit ctermfg=232 guifg=#777777 guibg=236
+        autocmd ColorScheme * hi Function ctermfg=107 guifg=#b8f28a
         " autocmd ColorScheme * hi CursorLineNr term=bold  cterm=none ctermfg=232 ctermbg=none guifg=#00ffff
 
         ]]
