@@ -219,7 +219,7 @@ return require('packer').startup(function(use)
     --     }
     -- }
 
-    vim.cmd[[nnoremap <Leader>p :lua require'telescope.builtin'.find_files()<cr>]]
+    vim.cmd[[nnoremap <Leader>uu :lua require'telescope.builtin'.find_files()<cr>]]
     vim.cmd[[nnoremap <Leader>ub :lua require'telescope.builtin'.buffers()<cr>]]
     vim.cmd[[nnoremap <Leader>uh :lua require'telescope.builtin'.help_tags()<cr>]]
     -- vim.cmd[[nnoremap <Leader>uu :lua require'telescope.builtin'.find_files(require('telescope.themes').get_dropdown({}))<cr>]]
