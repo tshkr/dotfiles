@@ -14,12 +14,3 @@ git clone --depth 1 \
     ~/.local/share/nvim/site/pack/packer/start/packer.nvim
 
 ln -sf ${SCRIPT_DIR}/dot.config/nvim $HOME/.config/
-
-
-
-# wezterm .terminfo
-# https://wezfurlong.org/wezterm/config/lua/config/term.html?highlight=term#term--xterm-256color
-tempfile=$(mktemp) \
-  && curl -o $tempfile https://raw.githubusercontent.com/wez/wezterm/main/termwiz/data/wezterm.terminfo \
-  && tic -x -o ~/.terminfo $tempfile \
-  && rm $tempfile
