@@ -38,7 +38,8 @@ vim.o.visualbell = true  -- ベルを画面フラッシュにする。
 vim.o.virtualedit = 'block' -- 矩形選択で文字が無くても右へ進めるようにする。
 vim.o.browsedir = 'buffer'  -- ファイル保存ダイアログの初期ディレクトリをバッファファイル位置固定する。
 vim.o.helplang = 'ja,en'  -- ヘルプ検索時の日本語の優先順位を上げる。
-vim.o.title = true  -- 編集中のファイル名を示します。
+vim.o.title = true  -- 編集中のファイル名を表示する。
+vim.o.wrap = true -- 長い行を折り返して表示する。
 
 
 -- set lazyredraw  " マクロやコマンドを実行する間、画面を再描画しない(スクロールが重くなる対策)
@@ -170,6 +171,7 @@ return require('packer').startup(function(use)
     use("nvim-lua/plenary.nvim")
     use("MunifTanjim/nui.nvim")
     use("rcarriga/nvim-notify")
+    use("kkharji/sqlite.lua")
 
     use("EdenEast/nightfox.nvim")
 
@@ -207,7 +209,13 @@ return require('packer').startup(function(use)
     use("folke/trouble.nvim")
 
     use("nvim-telescope/telescope.nvim")
-    use("nvim-telescope/telescope-frecency.nvim")
+    -- use{
+    --     "nvim-telescope/telescope-frecency.nvim",
+    --     config = function()
+    --         require"telescope".load_extension("frecency")
+    --     end,
+    --     requires = {"kkharji/sqlite.lua"}
+    -- }
     use("nvim-telescope/telescope-packer.nvim")
     use("nvim-telescope/telescope-smart-history.nvim")
     use("nvim-telescope/telescope-media-files.nvim")
@@ -219,10 +227,16 @@ return require('packer').startup(function(use)
     --     }
     -- }
     --
-    vim.cmd[[nnoremap <Leader>uu :lua require'telescope.builtin'.find_files()<cr>]]
+    -- vim.cmd[[nnoremap <Leader>uu :lua require('telescope').extensions.frecency.frecency()<cr>]]
+    vim.cmd[[nnoremap <Leader>U  :lua require'telescope.builtin'.builtin()<cr>]]
+    vim.cmd[[nnoremap <Leader>uf :lua require'telescope.builtin'.find_files()<cr>]]
     vim.cmd[[nnoremap <Leader>ub :lua require'telescope.builtin'.buffers()<cr>]]
     vim.cmd[[nnoremap <Leader>uh :lua require'telescope.builtin'.help_tags()<cr>]]
     vim.cmd[[nnoremap <Leader>uc :lua require'telescope.builtin'.commands()<cr>]]
+    vim.cmd[[nnoremap <Leader>ud :lua require'telescope.builtin'.diagnostics()<cr>]]
+    vim.cmd[[nnoremap <Leader>ug :lua require'telescope.builtin'.live_grep()<cr>]]
+    vim.cmd[[nnoremap <Leader>um :lua require'telescope.builtin'.marks()<cr>]]
+    vim.cmd[[nnoremap <Leader>uk :lua require'telescope.builtin'.keymaps()<cr>]]
     -- vim.cmd[[nnoremap <Leader>p :lua require'telescope.builtin'.current_buffer_fuzzy_find()<cr>]]
     -- vim.cmd[[nnoremap <Leader>uu :lua require'telescope.builtin'.find_files(require('telescope.themes').get_dropdown({}))<cr>]]
     -- vim.cmd[[nnoremap <Leader>ub :lua require'telescope.builtin'.buffers(require('telescope.themes').get_dropdown({}))<cr>]]
@@ -246,6 +260,16 @@ return require('packer').startup(function(use)
     }
 
     use("akinsho/bufferline.nvim")
+
+    use({
+        "kylechui/nvim-surround",
+        tag = "*", -- Use for stability; omit to use `main` branch for the latest features
+        config = function()
+            require("nvim-surround").setup({
+                -- Configuration here, or leave empty to use defaults
+            })
+        end
+    })
 
     use {
         'kyazdani42/nvim-tree.lua',
@@ -353,9 +377,7 @@ return require('packer').startup(function(use)
             --   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
             --   vim.cmd 'autocmd BufWritePre * lua vim.lsp.buf.formatting_sync(nil, 1000)'
             -- end,
-            capabilities = require('cmp_nvim_lsp').update_capabilities(
-                vim.lsp.protocol.make_client_capabilities()
-            )
+            capabilities = require("cmp_nvim_lsp").default_capabilities()
         }
         require('lspconfig')[server].setup(opt)
     end }

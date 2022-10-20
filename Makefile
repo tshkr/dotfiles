@@ -20,6 +20,7 @@ TMUX_GIT = $(TMP_DIR)/tmux
 ZSH_VER = zsh-5.9
 ZSH_BIN = $(INSTALL_DIR)/bin/zsh
 ZSH_GIT = $(TMP_DIR)/zsh
+# ZIM_BIN = $(INSTALL_DIR)/
 
 SIXEL_BIN = $(INSTALL_DIR)/bin/img2sixel
 SIXEL_GIT = $(TMP_DIR)/libsixel
@@ -32,9 +33,10 @@ MAGICK_GIT = $(TMP_DIR)/ImageMagick
 # all: $(TMUX_TPM)
 .PHONY: linux
 # linux: $(NEOVIM_BIN) $(TMUX_BIN)
-# linux:  $(ZSH_BIN)
+linux:  $(ZSH_BIN)
 # linux:  $(TMUX_EXT)
-linux:  $(MAGICK_BIN)
+# linux:  $(MAGICK_BIN)
+# linux: $(NEOVIM_BIN)
 
 
 config_git:
@@ -54,7 +56,7 @@ $(NEOVIM_GIT): $(TMP_DIR)
 	cd $< && git clone https://github.com/neovim/neovim.git
 
 $(NEOVIM_BIN): $(NEOVIM_GIT)
-	# cd $< && git pull origin master
+	cd $< && git pull origin master
 	cd $< && git checkout refs/tags/$(NEOVIM_VER)
 	cd $< && make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=$(INSTALL_DIR)
 	cd $< && make install
