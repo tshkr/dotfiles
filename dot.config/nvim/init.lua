@@ -158,6 +158,27 @@ vim.o.winblend = 10
 vim.o.pumblend = 10
 vim.o.termguicolors = true
 
+vim.cmd[[
+    " カーソル下のhighlight情報を表示する {{{
+    function! s:get_syn_id(transparent)
+        let synid = synID(line('.'), col('.'), 1)
+        return a:transparent ? synIDtrans(synid) : synid
+    endfunction
+
+    function! s:get_syn_name(synid)
+        return synIDattr(a:synid, 'name')
+    endfunction
+
+    function! s:get_highlight_info()
+        execute "highlight " . s:get_syn_name(s:get_syn_id(0))
+        execute "highlight " . s:get_syn_name(s:get_syn_id(1))
+    endfunction
+
+    command! HighlightInfo call s:get_highlight_info()
+]]
+
+
+
 
 return require('packer').startup(function(use)
     -- Packer can manage itself
@@ -491,19 +512,24 @@ return require('packer').startup(function(use)
         let g:everforest_better_performance = 1
     ]]
 
+        -- vim.cmd[[colorscheme sonokai]]
     -- vim.cmd[[colorscheme gruvbox-material]]
     vim.cmd[[
-        autocmd ColorScheme * hi Normal ctermbg=236 guibg=236
-        autocmd ColorScheme * hi Comment cterm=italic ctermfg=236 gui=italic guifg=#AAAAAA
-        autocmd ColorScheme * hi cursorline term=none cterm=none gui=none  ctermfg=none  ctermbg=235 guifg=none guibg=#292929
+        colorscheme sonokai
+        augroup sonokai_custom
+        autocmd!
+        autocmd ColorScheme * hi Normal ctermbg=236 guibg=#111111
+        autocmd ColorScheme * hi Comment cterm=none ctermfg=236 gui=none guifg=#AAAAAA guibg=#111111
+        autocmd ColorScheme * hi cursorline term=none cterm=none gui=none  ctermfg=none  ctermbg=235 guifg=none guibg=#202020
         autocmd ColorScheme * hi EndOfBuffer  ctermfg=237 ctermbg=235 guibg=#222222
         autocmd ColorScheme * hi VertSplit ctermfg=232 guifg=#777777 guibg=236
         autocmd ColorScheme * hi Function ctermfg=107 guifg=#b8f28a
-        " autocmd ColorScheme * hi CursorLineNr term=bold  cterm=none ctermfg=232 ctermbg=none guifg=#00ffff
+        autocmd ColorScheme * hi CursorLineNr term=bold  cterm=none ctermfg=232 ctermbg=none guifg=#00ffff
+        augroup end
+        colorscheme sonokai
+    ]]
 
-        ]]
-
-    vim.cmd[[colorscheme sonokai]]
+    -- vim.cmd[[colorscheme sonokai]]
 
 
     use{'NvChad/nvim-colorizer.lua'}
