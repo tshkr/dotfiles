@@ -516,16 +516,16 @@ return require('packer').startup(function(use)
     -- vim.cmd[[colorscheme gruvbox-material]]
     vim.cmd[[
         colorscheme sonokai
-        augroup sonokai_custom
-        autocmd!
-        autocmd ColorScheme * hi Normal ctermbg=236 guibg=#111111
-        autocmd ColorScheme * hi Comment cterm=none ctermfg=236 gui=none guifg=#AAAAAA guibg=#111111
-        autocmd ColorScheme * hi cursorline term=none cterm=none gui=none  ctermfg=none  ctermbg=235 guifg=none guibg=#202020
-        autocmd ColorScheme * hi EndOfBuffer  ctermfg=237 ctermbg=235 guibg=#222222
-        autocmd ColorScheme * hi VertSplit ctermfg=232 guifg=#777777 guibg=236
-        autocmd ColorScheme * hi Function ctermfg=107 guifg=#b8f28a
-        autocmd ColorScheme * hi CursorLineNr term=bold  cterm=none ctermfg=232 ctermbg=none guifg=#00ffff
-        augroup end
+        augroup SonokaiCustom
+        au!
+            autocmd ColorScheme * hi Normal ctermbg=236 guibg=#111111
+            autocmd ColorScheme * hi Comment cterm=none ctermfg=236 gui=none guifg=#AAAAAA guibg=#111111
+            autocmd ColorScheme * hi cursorline term=none cterm=none gui=none  ctermfg=none  ctermbg=235 guifg=none guibg=#202020
+            autocmd ColorScheme * hi EndOfBuffer  ctermfg=237 ctermbg=235 guibg=#222222
+            autocmd ColorScheme * hi VertSplit ctermfg=232 guifg=#777777 guibg=236
+            autocmd ColorScheme * hi Function ctermfg=107 guifg=#b8f28a
+            autocmd ColorScheme * hi CursorLineNr term=bold  cterm=none ctermfg=232 ctermbg=none guifg=#00ffff
+        augroup END
         colorscheme sonokai
     ]]
 
