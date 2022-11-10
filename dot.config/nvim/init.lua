@@ -520,6 +520,7 @@ return require('packer').startup(function(use)
         au!
             autocmd ColorScheme * hi Normal ctermbg=236 guibg=#111111
             autocmd ColorScheme * hi Comment cterm=none ctermfg=236 gui=none guifg=#AAAAAA guibg=#111111
+            " autocmd ColorScheme * hi String ctermfg=169 guifg=#aacb64
             autocmd ColorScheme * hi cursorline term=none cterm=none gui=none  ctermfg=none  ctermbg=235 guifg=none guibg=#202020
             autocmd ColorScheme * hi EndOfBuffer  ctermfg=237 ctermbg=235 guibg=#222222
             autocmd ColorScheme * hi VertSplit ctermfg=232 guifg=#777777 guibg=236
@@ -644,5 +645,77 @@ return require('packer').startup(function(use)
     end
     vim.cmd[[autocmd! TermOpen term://* lua set_terminal_keymaps()]]
     keymap('n', '<Leader>t', '<cmd>ToggleTerm size=40<CR>', {noremap=true})
+
+    use {"is0n/jaq-nvim"}
+    require('jaq-nvim').setup{
+        cmds = {
+            -- Uses vim commands
+            internal = {
+                lua = "luafile %",
+                vim = "source %"
+            },
+
+            -- Uses shell commands
+            external = {
+                markdown = "glow %",
+                python   = "python3 %",
+                go       = "go run %",
+                sh       = "sh %"
+            }
+        },
+
+        behavior = {
+            -- Default type
+            default     = "float",
+
+            -- Start in insert mode
+            startinsert = false,
+
+            -- Use `wincmd p` on startup
+            wincmd      = false,
+
+            -- Auto-save files
+            autosave    = false
+        },
+
+        ui = {
+            float = {
+                -- See ':h nvim_open_win'
+                border    = "none",
+
+                -- See ':h winhl'
+                winhl     = "Normal",
+                borderhl  = "FloatBorder",
+
+                -- See ':h winblend'
+                winblend  = 0,
+
+                -- Num from `0-1` for measurements
+                height    = 0.8,
+                width     = 0.8,
+                x         = 0.5,
+                y         = 0.5
+            },
+
+            terminal = {
+                -- Window position
+                position = "bot",
+
+                -- Window size
+                size     = 10,
+
+                -- Disable line numbers
+                line_no  = false
+            },
+
+            quickfix = {
+                -- Window position
+                position = "bot",
+
+                -- Window size
+                size     = 10
+            }
+        }
+    }
 
 end)
