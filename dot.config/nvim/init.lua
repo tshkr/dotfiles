@@ -406,7 +406,7 @@ return require('packer').startup(function(use)
     -- 2. build-in LSP function
     -- keyboard shortcut
     vim.keymap.set('n', '?',  '<cmd>lua vim.lsp.buf.hover()<CR>')
-    vim.keymap.set('n', 'gf', '<cmd>lua vim.lsp.buf.formatting()<CR>')
+    vim.keymap.set('n', 'gf', '<cmd>lua vim.lsp.buf.format()<CR>')
     vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>')
     vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
     vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>')
@@ -666,7 +666,7 @@ return require('packer').startup(function(use)
 
         behavior = {
             -- Default type
-            default     = "float",
+            default     = "bang",
 
             -- Start in insert mode
             startinsert = false,
@@ -675,7 +675,7 @@ return require('packer').startup(function(use)
             wincmd      = false,
 
             -- Auto-save files
-            autosave    = false
+            autosave    = true
         },
 
         ui = {
@@ -717,5 +717,6 @@ return require('packer').startup(function(use)
             }
         }
     }
+    keymap('n', '<Leader>c', ':Jaq<CR>', {noremap=true})
 
 end)
