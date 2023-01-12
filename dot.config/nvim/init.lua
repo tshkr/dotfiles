@@ -526,7 +526,7 @@ mason.setup()
 
 mason_lspconfig.setup({
     ensure_installed = {
-        'fsautocomplete',
+        -- 'fsautocomplete',
         'clangd',
         'pyright',
         'tsserver',
@@ -542,7 +542,7 @@ mason_null_ls.setup{
         'stylua',
          -- これらは使用予定の Python パッケージマネージャーを使用した方が良いです。
         --[[ 'pyproject_flake8', 'flake8', 'mypy', 'blue', 'usort', ]]
-        'fantomas',
+        -- 'fantomas',
         -- 'cspell',
         'markdownlint'
     },
