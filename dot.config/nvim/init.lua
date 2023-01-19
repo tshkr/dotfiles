@@ -780,16 +780,22 @@ keymap('n', '<F5>', ':DapContinue<CR>', { silent = true })
 keymap('n', '<F10>', ':DapStepOver<CR>', { silent = true })
 keymap('n', '<F11>', ':DapStepInto<CR>', { silent = true })
 keymap('n', '<F12>', ':DapStepOut<CR>', { silent = true })
-keymap('n', '<leader>b', ':DapToggleBreakpoint<CR>', { silent = true })
-keymap('n', '<leader>B', ':lua require("dap").set_breakpoint(nil, nil, vim.fn.input("Breakpoint condition: "))<CR>',
+keymap('n', '<leader>b', '<Cmd>DapToggleBreakpoint<CR>', { silent = true })
+keymap('n', '<leader>B', '<Cmd>lua require("dap").set_breakpoint(nil, nil, vim.fn.input("Breakpoint condition: "))<CR>',
     { silent = true })
-keymap('n', '<leader>lp', ':lua require("dap").set_breakpoint(nil, nil, vim.fn.input("Log point message: "))<CR>',
+keymap('n', '<Leader>bl', '<Cmd>lua require("dap").list_breakpoints()<CR>:cw<CR>', { silent = true })
+keymap('n', '<leader>b<Esc>', '<Cmd>lua require("dap").clear_breakpoints()<CR>', { silent = true })
+keymap('n', '<leader>lp', '<Cmd>lua require("dap").set_breakpoint(nil, nil, vim.fn.input("Log point message: "))<CR>',
     { silent = true })
 keymap('n', '<leader>dr', ':lua require("dap").repl.open()<CR>', { silent = true })
 keymap('n', '<leader>dl', ':lua require("dap").run_last()<CR>', { silent = true })
-keymap('n', '<leader>d', ':lua require("dapui").toggle()<CR>', {})
+keymap('n', '<leader>D', ':lua require("dapui").toggle()<CR>', {})
 vim.cmd [[nnoremap <buffer><buffer><2-LeftMouse> <Cmd>lua require'dapui'.eval()<CR>]]
--- vim.cmd[[vnoremap <M-k> <Cmd>lua require("dapui").eval()<CR>]]
+keymap('n', '<Leader>d?', '<cmd>lua require"dapui".eval()<CR>', {silent=true})
+
+-- ビルドしてデバッグする。
+keymap('n', '<F6>', '<Cmd>make<CR><Cmd>DapContinue<CR>', { silent = true })
+
 
 
 local dap, dapui = require("dap"), require("dapui")
@@ -803,7 +809,8 @@ dap.listeners.before.event_exited["dapui_config"] = function()
     dapui.close()
 end
 
-dap.set_exception_breakpoints({'raised', 'uncaught'})
+dap.defaults.fallback.exseption_breakpoints = {'raised', 'uncaughted'}
+-- require('dap.ext.vscode').load_launchjs(nil, { cppdbg = {'c', 'cpp'} })
 
 require 'dapui'.setup()
 ---------------------------------------------------------------------------
@@ -1149,25 +1156,24 @@ dap.adapters = {
         }
     }
 }
+
 -- ここにファイルタイプ別の設定
-dap.configurations = {
-    cpp = {
-        -- 複数指定することもできる
-        -- 複数あるとデバッグ開始時にどの設定使うか聞かれる
-        {
-            name = 'Launch file', -- optional
-            -- dap.adapters にあるデバッガから、どれを使うか
-            type = 'codelldb',
-            -- デバッガの起動
-            request = 'launch',
-            -- コンパイル時に -g オプションをつけてビルドした実行ファイルを指定する
-            program = function()
-                return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/a.out', 'file')
-            end,
-            cwd = '${workspaceFolder}',
-            stopOnEntry = false
-        }
-    },
+dap.configurations.cpp = {
+    -- 複数指定することもできる
+    -- 複数あるとデバッグ開始時にどの設定使うか聞かれる
+    {
+        name = 'Launch file', -- optional
+        -- dap.adapters にあるデバッガから、どれを使うか
+        type = 'codelldb',
+        -- デバッガの起動
+        request = 'launch',
+        -- コンパイル時に -g オプションをつけてビルドした実行ファイルを指定する
+        program = function()
+            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/a.out', 'file')
+        end,
+        cwd = '${workspaceFolder}',
+        stopOnEntry = false
+    }
 }
 
 require'dap-python'.setup(python_path.filename)
@@ -1181,4 +1187,4 @@ table.insert(dap.configurations.python, {
         -- ... more options, see https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings
     })
 
-
+require('dap.ext.vscode').load_launchjs(nil, { codelldb = {'c', 'cpp'} })
