@@ -1104,7 +1104,7 @@ require('jaq-nvim').setup {
             position = "bot",
 
             -- Window size
-            size = 15,
+            size = 20,
 
             -- Disable line numbers
             line_no = false
