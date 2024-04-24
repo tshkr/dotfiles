@@ -1,6 +1,10 @@
 local vim = vim
 -- Lazy bootstrapping
 
+vim.opt.fileencodings= {'utf-8','cp932', 'iso-2022-jp','euc-jp','sjis','latin1'}
+vim.opt.fileformats = {'unix','mac','dos'}
+-- vim.opt.encoding='utf-8'
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
     vim.fn.system {
@@ -43,7 +47,7 @@ require('lazy').setup({
         event = { 'WinNew', 'WinLeave', 'BufRead' },
     },
     'williamboman/mason-lspconfig',
-    'jose-elias-alvarez/null-ls.nvim',
+    'nvimtools/none-ls.nvim',
     'jayp0521/mason-null-ls.nvim',
     'stevearc/dressing.nvim',
     'tami5/lspsaga.nvim',
@@ -64,16 +68,42 @@ require('lazy').setup({
     'ray-x/cmp-treesitter',
     'zbirenbaum/copilot-cmp',
     'hrsh7th/cmp-emoji',
-    'L3MON4D3/LuaSnip',
     'saadparwaiz1/cmp_luasnip',
     'rafamadriz/friendly-snippets',
+    {
+        "L3MON4D3/LuaSnip",
+        -- follow latest release.
+        version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+        -- install jsregexp (optional!).
+        build = "make install_jsregexp"
+    },
+
+    {
+        "NeogitOrg/neogit",
+        dependencies = {
+            "nvim-lua/plenary.nvim", -- required
+            "sindrets/diffview.nvim", -- optional - Diff integration
+
+            -- Only one of these is needed, not both.
+            "nvim-telescope/telescope.nvim", -- optional
+            "ibhagwan/fzf-lua", -- optional
+        },
+        config = true
+    },
 
     -- DAP
-    'mfussenegger/nvim-dap',
-    'rcarriga/nvim-dap-ui',
-    'theHamsta/nvim-dap-virtual-text',
-    'nvim-neotest/neotest',
-    'mfussenegger/nvim-dap-python',
+    -- 'mfussenegger/nvim-dap',
+    -- 'rcarriga/nvim-dap-ui',
+    -- 'theHamsta/nvim-dap-virtual-text',
+    -- {
+    --     "nvim-neotest/neotest",
+    --     dependencies = {
+    --         "nvim-lua/plenary.nvim",
+    --         "antoinemadec/FixCursorHold.nvim",
+    --         "nvim-treesitter/nvim-treesitter"
+    --     },
+    -- },
+    -- 'mfussenegger/nvim-dap-python',
 
     -- IDE
     'folke/trouble.nvim',
@@ -92,11 +122,11 @@ require('lazy').setup({
     'nvim-telescope/telescope-smart-history.nvim',
     'nvim-telescope/telescope-media-files.nvim',
     'LinArcX/telescope-command-palette.nvim',
-    { "nvim-telescope/telescope-frecency.nvim",
-        config = function()
-            require "telescope".load_extension("frecency")
-        end,
-    },
+    -- { "nvim-telescope/telescope-frecency.nvim",
+    --     config = function()
+    --         require "telescope".load_extension("frecency")
+    --     end,
+    -- },
 
     -- jaq (quick-run)
     "is0n/jaq-nvim",
@@ -115,8 +145,19 @@ require('lazy').setup({
         end,
     },
 
+    'johmsalas/text-case.nvim',
+
     -- Search
-    "rlane/pounce.nvim",
+    -- "rlane/pounce.nvim",
+    {
+        'smoka7/hop.nvim',
+        version = "*",
+        opts = {
+            keys = "UEOIHTNDGCRFPKJQXVWMB",
+            jump_on_sole_occurrence = false,
+            multi_windows = true,
+        },
+    },
 
     -- Status line
     "nvim-lualine/lualine.nvim",
@@ -128,7 +169,32 @@ require('lazy').setup({
         'b0o/incline.nvim',
         event = { 'BufRead', 'BufNewFile' },
         config = function()
-            require('incline').setup()
+            require('incline').setup {
+                render = function(props)
+                    local bufname = vim.api.nvim_buf_get_name(props.buf)
+                    local filename = vim.fn.fnamemodify(bufname, ":t")
+                    -- local dirname = vim.fs.dirname(filename)
+                    local dirpath = vim.fs.dirname(bufname)
+                    local dirname = vim.fs.basename(dirpath)
+                    local modified = vim.api.nvim_buf_get_option(props.buf, "modified") and "bold,italic" or "None"
+                    local filetype_icon, color = require("nvim-web-devicons").get_icon_color(filename)
+
+
+                    local buffer = {
+                        { filetype_icon, guifg = color },
+                        { ' ' },
+                        { dirname },
+                        { "/" },
+                        { filename,      gui = modified },
+                    }
+
+                    if vim.api.nvim_get_option_value('modified', { buf = props.buf }) then
+                        table.insert(buffer, ' [+]')
+                    end
+
+                    return buffer
+                end,
+            }
         end,
     },
 
@@ -146,7 +212,8 @@ require('lazy').setup({
     'mattn/vim-maketable',
 
     { 'dhruvasagar/vim-table-mode',
-        config = function() vim.cmd [[
+        config = function()
+            vim.cmd [[
             let g:table_mode_corner='|'
 
             function! s:isAtStartOfLine(mapping)
@@ -188,7 +255,8 @@ require('lazy').setup({
     'glepnir/zephyr-nvim',
 
     { 'sainnhe/sonokai',
-        config = function() vim.cmd [[
+        config = function()
+            vim.cmd [[
             let g:sonokai_style = 'atlantis'
             let g:sonokai_better_performance = 1
             let g:sonokai_enable_italic = 1
@@ -215,11 +283,16 @@ require('lazy').setup({
         end,
     },
     { 'sainnhe/everforest',
-        init = function() vim.cmd [[
+        init = function()
+            vim.cmd [[
             let g:everforest_background = 'hard'
             let g:everforest_better_performance = 1
         ]]
         end,
+    },
+    { 'akinsho/toggleterm.nvim',
+        version = "*",
+        config = true,
     },
 
     -- 以下、未整理
@@ -383,9 +456,6 @@ if vim.g.vscode then
     keymap('n', 'k', ':call VSCodeCall("cursorUp")<CR>', {noremap=true})
 end
 ]]
-
-
-
 local function has_attr(arg)
     return vim.fn.has(arg) == 1
 end
@@ -429,6 +499,8 @@ vim.o.writebackup = false -- ファイルの上書きの前にバックアップ
 vim.o.autoread = true -- 他で書き換えられたら自動で読み直す
 vim.o.hidden = true -- 編集中でも他のファイルを開けるようにする
 vim.o.switchbuf = 'useopen' -- 新しく開く代わりにすでに開いてあるバッファを開く
+-- ivim.o.switchbuf = 'usetab,newtab,split,vsplit'
+
 vim.o.backup = false -- バックアップ取らない
 vim.o.swapfile = false -- スワップファイル作らない
 
@@ -510,6 +582,7 @@ keymap('n', '<Plug>(ff)d', ":lua require'telescope.builtin'.diagnostics()<cr>", 
 keymap('n', '<Plug>(ff)g', ":lua require'telescope.builtin'.live_grep()<cr>", key_defaultopt)
 keymap('n', '<Plug>(ff)m', ":lua require'telescope.builtin'.marks()<cr>", key_defaultopt)
 keymap('n', '<Plug>(ff)k', ":lua require'telescope.builtin'.keymaps()<cr>", key_defaultopt)
+keymap('n', '<Plug>(ff)p', ":lua require'telescope.builtin'.builtin()<cr>", key_defaultopt)
 
 
 ------------
@@ -519,7 +592,7 @@ local lsp_config = require('lspconfig')
 local mason = require('mason')
 local mason_lspconfig = require('mason-lspconfig')
 local mason_null_ls = require('mason-null-ls')
-local null_ls = require('null-ls')
+local none_ls = require('null-ls')
 
 require('dressing').setup()
 require('lspsaga').init_lsp_saga()
@@ -538,7 +611,7 @@ mason_lspconfig.setup({
         'tsserver',
         'eslint',
         -- 'lua-language-server',
-        'sumneko_lua',
+        'lua_ls',
     },
     automatic_installation = true,
 })
@@ -566,25 +639,25 @@ local python_path = get_python_path()
 -- print(python_path)
 local null_ls_sources = {
     -- Python
-    null_ls.builtins.diagnostics.pyproject_flake8.with {
-        filetypes = { 'python' },
-        command = { python_path:parent():joinpath('pflake8').filename },
-    },
-    -- null_ls.builtins.diagnostics.flake8,
-    null_ls.builtins.diagnostics.mypy.with {
-        filetypes = { 'python' },
-        command = { python_path:parent():joinpath('mypy').filename },
-    },
-    -- null_ls.builtins.formatting.blue,
-    null_ls.builtins.formatting.blue.with {
-        filetypes = { 'python' },
-        command = { python_path:parent():joinpath('blue').filename },
-    },
-    -- null_ls.builtins.formatting.usort,
-    null_ls.builtins.formatting.usort.with {
-        filetypes = { 'python' },
-        command = { python_path:parent():joinpath('usort').filename },
-    },
+    -- none_ls.builtins.diagnostics.pyproject_flake8.with {
+    --     filetypes = { 'python' },
+    --     command = { python_path:parent():joinpath('pflake8').filename },
+    -- },
+    -- none_ls.builtins.diagnostics.flake8,
+    -- none_ls.builtins.diagnostics.mypy.with {
+    --     filetypes = { 'python' },
+    --     -- command = { python_path:parent():joinpath('mypy').filename },
+    -- },
+    -- none_ls.builtins.formatting.blue,
+    -- none_ls.builtins.formatting.blue.with {
+    --     filetypes = { 'python' },
+    --     -- command = { python_path:parent():joinpath('blue').filename },
+    -- },
+    -- none_ls.builtins.formatting.usort,
+    -- none_ls.builtins.formatting.usort.with {
+    --     filetypes = { 'python' },
+    --     -- command = { python_path:parent():joinpath('usort').filename },
+    -- },
 }
 
 -- 保存時のコードをフォーマットします。
@@ -592,7 +665,7 @@ local lsp_formatting = function(bufnr)
     vim.lsp.buf.format({
         filter = function(client)
             -- apply whatever logic you want (in this example, we'll only use null-ls)
-            return client.name == "null-ls"
+            return client.name == "none-ls"
         end,
         bufnr = bufnr,
     })
@@ -615,13 +688,13 @@ local on_write = function(client, bufnr)
     end
 end
 
-null_ls.setup({
+none_ls.setup({
     sources = null_ls_sources,
     on_attach = on_write,
 })
 
 
-lsp_config.sumneko_lua.setup {
+lsp_config.lua_ls.setup {
     settings = {
         Lua = {
             runtime = {
@@ -685,58 +758,54 @@ local function show_documentation()
     end
 end
 
-
 -- https://github.com/neovim/nvim-lspconfig/issues/726
 local function filter(arr, func)
-	-- Filter in place
-	-- https://stackoverflow.com/questions/49709998/how-to-filter-a-lua-array-inplace
-	local new_index = 1
-	local size_orig = #arr
-	for old_index, v in ipairs(arr) do
-		if func(v, old_index) then
-			arr[new_index] = v
-			new_index = new_index + 1
-		end
-	end
-	for i = new_index, size_orig do arr[i] = nil end
+    -- Filter in place
+    -- https://stackoverflow.com/questions/49709998/how-to-filter-a-lua-array-inplace
+    local new_index = 1
+    local size_orig = #arr
+    for old_index, v in ipairs(arr) do
+        if func(v, old_index) then
+            arr[new_index] = v
+            new_index = new_index + 1
+        end
+    end
+    for i = new_index, size_orig do arr[i] = nil end
 end
-
 
 local function filter_diagnostics(diagnostic)
-	-- Only filter out Pyright stuff for now
-	-- if diagnostic.source ~= "Pyright" then
-	-- 	return true
-	-- end
+    -- Only filter out Pyright stuff for now
+    -- if diagnostic.source ~= "Pyright" then
+    -- 	return true
+    -- end
     -- Pyright の diagnostics は扱いません。
-	if diagnostic.source == "Pyright" then
-		return false
-	end
+    if diagnostic.source == "Pyright" then
+        return false
+    end
 
-	-- Allow kwargs to be unused, sometimes you want many functions to take the
-	-- same arguments but you don't use all the arguments in all the functions,
-	-- so kwargs is used to suck up all the extras
-	-- if diagnostic.message == '"kwargs" is not accessed' then
-	-- 	return false
-	-- end
+    -- Allow kwargs to be unused, sometimes you want many functions to take the
+    -- same arguments but you don't use all the arguments in all the functions,
+    -- so kwargs is used to suck up all the extras
+    -- if diagnostic.message == '"kwargs" is not accessed' then
+    -- 	return false
+    -- end
 
-	-- Allow variables starting with an underscore
-	-- if string.match(diagnostic.message, '".+" is not accessed') then
-	-- 	return false
-	-- end
+    -- Allow variables starting with an underscore
+    -- if string.match(diagnostic.message, '".+" is not accessed') then
+    -- 	return false
+    -- end
 
-	-- if string.match(diagnostic.message, 'Illegal type annotation: call expression not allowed') then
-	-- 	return false
-	-- end
+    -- if string.match(diagnostic.message, 'Illegal type annotation: call expression not allowed') then
+    -- 	return false
+    -- end
 
-	return true
+    return true
 end
-
 
 local function on_publish_diagnostics_filtered(a, params, client_id, c, config)
-	filter(params.diagnostics, filter_diagnostics)
-	vim.lsp.diagnostic.on_publish_diagnostics(a, params, client_id, c, config)
+    filter(params.diagnostics, filter_diagnostics)
+    vim.lsp.diagnostic.on_publish_diagnostics(a, params, client_id, c, config)
 end
-
 
 -- LSP handlers
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(on_publish_diagnostics_filtered, {
@@ -749,7 +818,7 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(on_publish_di
 
 -- keyboard shortcut
 vim.keymap.set('n', 'g?', '<cmd>lua vim.lsp.buf.hover()<CR>')
-vim.keymap.set('n', '<Leader>f', '<cmd>lua vim.lsp.buf.format{ async = true }<CR>')
+-- vim.keymap.set('n', '<Leader>f', '<cmd>lua vim.lsp.buf.format{ async = true }<CR>')
 vim.keymap.set('n', '<Leader>f', function() vim.lsp.buf.format { async = true } end)
 vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>')
 vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
@@ -776,6 +845,7 @@ vim.keymap.set('n', 'g[', '<cmd>lua vim.diagnostic.goto_prev()<CR>')
 --  ]]
 ---------------------------------------------------------------------------
 -- DAP
+keymap('n', '<F4>', '<Cmd>DapToggleBreakpoint<CR>', { silent = true })
 keymap('n', '<F5>', ':DapContinue<CR>', { silent = true })
 keymap('n', '<F10>', ':DapStepOver<CR>', { silent = true })
 keymap('n', '<F11>', ':DapStepInto<CR>', { silent = true })
@@ -791,28 +861,33 @@ keymap('n', '<leader>dr', ':lua require("dap").repl.open()<CR>', { silent = true
 keymap('n', '<leader>dl', ':lua require("dap").run_last()<CR>', { silent = true })
 keymap('n', '<leader>D', ':lua require("dapui").toggle()<CR>', {})
 vim.cmd [[nnoremap <buffer><buffer><2-LeftMouse> <Cmd>lua require'dapui'.eval()<CR>]]
-keymap('n', '<Leader>d?', '<cmd>lua require"dapui".eval()<CR>', {silent=true})
+keymap('n', '<Leader>d?', '<cmd>lua require"dapui".eval()<CR>', { silent = true })
 
 -- ビルドしてデバッグする。
 keymap('n', '<F6>', '<Cmd>make<CR><Cmd>DapContinue<CR>', { silent = true })
 
+-- vim.fn.sign_define('DapBreakpoint', { text = '', texthl = 'DapBreakpointTextHl' })
+-- vim.fn.sign_define('DapStopped', { text = '', texthl = 'DapStoppedTextHl' })
 
-
-local dap, dapui = require("dap"), require("dapui")
-dap.listeners.after.event_initialized["dapui_config"] = function()
-    dapui.open()
-end
-dap.listeners.before.event_terminated["dapui_config"] = function()
-    dapui.close()
-end
-dap.listeners.before.event_exited["dapui_config"] = function()
-    dapui.close()
-end
-
-dap.defaults.fallback.exseption_breakpoints = {'raised', 'uncaughted'}
+-- local dap, dapui = require("dap"), require("dapui")
+-- dapui.setup()
+-- -- dap.listeners.after.event_initialized["dapui_config"] = function()
+-- --     dapui.open()
+-- -- end
+-- -- dap.listeners.before.event_terminated["dapui_config"] = function()
+-- --     dapui.close()
+-- -- end
+-- -- dap.listeners.before.event_exited["dapui_config"] = function()
+-- --     dapui.close()
+-- -- end
+-- -- dap.setup()
+-- 
+-- dap.defaults.fallback.exseption_breakpoints = { 'raised', 'uncaughted' }
 -- require('dap.ext.vscode').load_launchjs(nil, { cppdbg = {'c', 'cpp'} })
 
-require 'dapui'.setup()
+-- require 'dapui'.setup() {
+--     -- icons =
+-- }
 ---------------------------------------------------------------------------
 
 -- Completion
@@ -822,7 +897,7 @@ local lspkind = require('lspkind')
 cmp.setup {
     enabled = true,
     mapping = cmp.mapping.preset.insert({
-        ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+        ['<C-b>'] = cmp.mapping.scroll_docs( -4),
         ['<C-f>'] = cmp.mapping.scroll_docs(4),
         ['<C-Space>'] = cmp.mapping.complete(),
         ['<CR>'] = cmp.mapping.confirm({ select = true }),
@@ -868,24 +943,46 @@ cmp.setup.cmdline(":", {
 })
 
 -- IDE
+local function my_on_attach(bufnr)
+    local api = require "nvim-tree.api"
+
+    local function opts(desc)
+        return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+    end
+
+    -- default mappings
+    api.config.mappings.default_on_attach(bufnr)
+
+    -- custom mappings
+    vim.keymap.set('n', '_', api.tree.change_root_to_node, opts('CD'))
+    -- vim.keymap.set('n', '<C-.>', api.tree.change_root_to_node, opts('CD'))
+    vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
+end
+
 require 'nvim-tree'.setup {
     sort_by = "case_sensitive",
     view = {
         adaptive_size = true,
-        mappings = {
-            list = {
-                -- { key = "u", action = "dir_up" },
-            },
-        },
+        -- mappings = {
+        --     list = {
+        --         -- { key = "u", action = "dir_up" },
+        --     },
+        -- },
     },
     renderer = {
         group_empty = true,
     },
     filters = {
         dotfiles = true,
+        git_ignored = false, -- デフォルトはtrue
+        custom = {
+            "^\\.git",
+            "^node_modules",
+        },
     },
+    on_attach = my_on_attach,
 }
-
+keymap('n', '<Leader>ee', ':NvimTreeFocus<CR>', { noremap = true })
 
 
 -- treesitter
@@ -897,9 +994,11 @@ require 'nvim-treesitter.configs'.setup {
     highlight = {
         enable = true,
     },
-    context_commentstring = {
-        enable = true,
+    require('ts_context_commentstring').setup {
         enable_autocmd = false,
+        languages = {
+            typescript = '// %s',
+        },
     },
     endwise = { enable = true, },
     matchup = { enable = true, },
@@ -1033,20 +1132,45 @@ require('lualine').setup {
 }
 
 -- Search
-require 'pounce'.setup {
-    -- accept_keys = "JFKDLSAHGNUVRBYTMICEOXWPQZ",
-    -- accept_keys = "UEOIHTNPYGCRJQKWMVXB",
-    accept_keys = "UEOIHTNDGCRFPKJQXVWMB",
-    accept_best_key = "<enter>",
-    multi_window = true,
-    debug = false,
-}
+-- require 'pounce'.setup {
+--     -- accept_keys = "JFKDLSAHGNUVRBYTMICEOXWPQZ",
+--     -- accept_keys = "UEOIHTNPYGCRJQKWMVXB",
+--     accept_keys = "UEOIHTNDGCRFPKJQXVWMB",
+--     accept_best_key = "<enter>",
+--     multi_window = true,
+--     debug = false,
+-- }
+--
+-- vim.keymap.set('n', 's', '<cmd>Pounce<CR>')
+-- vim.keymap.set('n', 'S', '<cmd>PounceRepeat<CR>')
+-- vim.keymap.set('v', 's', '<cmd>Pounce<CR>')
+-- vim.keymap.set('o', 'gs', '<cmd>Pounce<CR>')
+--
+-- place this in one of your configuration file(s)
+local hop = require('hop')
+local directions = require('hop.hint').HintDirection
+-- vim.keymap.set('', 'f', function()
+--   hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
+-- end, {remap=true})
+-- vim.keymap.set('', 'F', function()
+--   hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
+-- end, {remap=true})
+-- vim.keymap.set('', 't', function()
+--   hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true, hint_offset = -1 })
+-- end, {remap=true})
+-- vim.keymap.set('', 'T', function()
+--   hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
+-- end, {remap=true})
+vim.keymap.set('n', 'S', '<cmd>HopWord<CR>')
+vim.keymap.set('n', 'gn', function() hop.hint_patterns({}, vim.api.nvim_exec('echo @/', true)) end)
+vim.keymap.set('n', 'g/', '<cmd>HopPattern<CR>')
 
-vim.keymap.set('n', 's', '<cmd>Pounce<CR>')
-vim.keymap.set('n', 'S', '<cmd>PounceRepeat<CR>')
-vim.keymap.set('v', 's', '<cmd>Pounce<CR>')
-vim.keymap.set('o', 'gs', '<cmd>Pounce<CR>')
-
+vim.cmd [[highlight HopNextKey  guifg=#c2355d guibg=#c2c2c2]]
+vim.cmd [[highlight HopNextKey1  guifg=#c2352d guibg=#c2c2c2]]
+vim.cmd [[highlight HopNextKey2  guifg=#c2352d guibg=#c2c2c2]]
+-- vim.api.nvim_set_hl(0, 'HopNextKey', {guifg='#c2c52d'})
+-- vim.api.nvim_set_hl(0, 'HopNextKey1', {guifg='#c2c52d'})
+-- vim.api.nvim_set_hl(0, 'HopNextKey2', {guifg='#c2c52d'})
 
 -- Jaq-nvim
 require('jaq-nvim').setup {
@@ -1083,7 +1207,7 @@ require('jaq-nvim').setup {
     ui = {
         float = {
             -- See ':h nvim_open_win'
-            border = "none",
+            border   = "none",
 
             -- See ':h winhl'
             winhl    = "Normal",
@@ -1093,10 +1217,10 @@ require('jaq-nvim').setup {
             winblend = 0,
 
             -- Num from `0-1` for measurements
-            height = 0.8,
-            width  = 0.8,
-            x      = 0.5,
-            y      = 0.5
+            height   = 0.8,
+            width    = 0.8,
+            x        = 0.5,
+            y        = 0.5
         },
 
         terminal = {
@@ -1126,65 +1250,178 @@ keymap('n', '<Leader>ct', ':Jaq terminal<CR>', { noremap = true })
 keymap('n', '<Leader>cf', ':Jaq float<CR>', { noremap = true })
 
 -- LunaSnip
---press <Tab> to expand or jump in a snippet. These can also be mapped separately
--- via <Plug>luasnip-expand-snippet and <Plug>luasnip-jump-next.
-vim.cmd [[imap <silent><expr> <Tab> luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<Tab>' ]]
--- -1 for jumping backwards.
-vim.cmd [[inoremap <silent> <S-Tab> <cmd>lua require'luasnip'.jump(-1)<Cr>]]
+-- REM
+-- --press <Tab> to expand or jump in a snippet. These can also be mapped separately
+-- -- via <Plug>luasnip-expand-snippet and <Plug>luasnip-jump-next.
+-- vim.cmd [[imap <silent><expr> <Tab> luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<Tab>' ]]
+-- -- -1 for jumping backwards.
+-- vim.cmd [[inoremap <silent> <S-Tab> <cmd>lua require'luasnip'.jump(-1)<Cr>]]
+--
+-- vim.cmd [[snoremap <silent> <Tab> <cmd>lua require('luasnip').jump(1)<Cr>]]
+-- vim.cmd [[snoremap <silent> <S-Tab> <cmd>lua require('luasnip').jump(-1)<Cr>]]
+--
+-- -- For changing choices in choiceNodes (not strictly necessary for a basic setup).
+-- vim.cmd [[imap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>']]
+-- vim.cmd [[smap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>']]
+local ls = require('luasnip')
+vim.keymap.set({ "i" }, "<C-K>", function() ls.expand() end, { silent = true })
+vim.keymap.set({ "i", "s" }, "<C-L>", function() ls.jump(1) end, { silent = true })
+vim.keymap.set({ "i", "s" }, "<C-J>", function() ls.jump( -1) end, { silent = true })
 
-vim.cmd [[snoremap <silent> <Tab> <cmd>lua require('luasnip').jump(1)<Cr>]]
-vim.cmd [[snoremap <silent> <S-Tab> <cmd>lua require('luasnip').jump(-1)<Cr>]]
-
--- For changing choices in choiceNodes (not strictly necessary for a basic setup).
-vim.cmd [[imap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>']]
-vim.cmd [[smap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>']]
+vim.keymap.set({ "i", "s" }, "<C-E>", function()
+    if ls.choice_active() then
+        ls.change_choice(1)
+    end
+end, { silent = true })
 
 
 --------------------------------------------------------------------------------
 -- DAP
 --------------------------------------------------------------------------------
 --https://ryota2357.com/blog/2022/cpp-codelldb-debug-nvim/
-dap.adapters = {
-    codelldb = {
-        type = 'server',
-        port = '${port}',
-        executable = {
-            -- Masonはここにデバッガを入れてくれる
-            command = vim.fn.stdpath('data') .. '/mason/packages/codelldb/extension/adapter/codelldb',
-            -- ポートを自動的に割り振ってくれる
-            args = { '--port', '${port}' }
-        }
-    }
-}
+-- local mason_registry = require("mason-registry")
+-- local codelldb_root = mason_registry.get_package("codelldb"):get_install_path()
+-- local cpptools_root = mason_registry.get_package("cpptools"):get_install_path()
+-- dap.adapters = {
+--     lldb_server = {
+--         type = 'server',
+--         -- port = '${port}',
+--         port = 13000,
+--         host = '127.0.0.1',
+--         executable = {
+--             -- Masonはここにデバッガを入れてくれる
+--             command = codelldb_root .. '/extension/adapter/codelldb',
+--             -- ポートを自動的に割り振ってくれる
+--             args = {
+--                 '--liblldb', codelldb_root .. '/extension/lldb/lib/liblldb.dylib',
+--                 -- '--port', '${port}'
+--                 '--port', 13000,
+--             },
+--         },
+--         -- name = 'lldb-server'
+--     },
+--     lldb_server_local = {
+--         type = 'server',
+--         port = '${port}',
+--         -- host = '127.0.0.1',
+--         executable = {
+--             -- Masonはここにデバッガを入れてくれる
+--             command = os.getenv('HOME') .. '/.local/codelldb/extension/adapter/codelldb',
+--             -- ポートを自動的に割り振ってくれる
+--             args = {
+--                 -- '--liblldb', codelldb_root .. '/extension/lldb/lib/liblldb.dylib',
+--                 '--port', '${port}'
+--             },
+--         },
+--         -- name = 'lldb-server'
+--     },
+--     lldb_server2 = {
+--         type = 'server',
+--         port = '${port}',
+--         executable = {
+--             command = mason_registry.get_package("codelldb"):get_install_path() .. 'bin/codelldb',
+--             args = { '--port', '${port}' },
+--         },
+--     },
+--     lldb = {
+--         type = 'executable',
+--         -- command = vim.fn.stdpath('data') .. '/mason/packages/codelldb/extension/adapter/codelldb',
+--         command = vim.fn.stdpath('data') .. '/mason/bin/codelldb',
+--         name = 'lldb'
+--     },
+--     cppdbg = {
+--         id = 'cppdbg',
+--         type = 'executable',
+--         command = cpptools_root .. 'debugAdapters/bin/OpenDebugAD7',
+--     },
+-- }
 
 -- ここにファイルタイプ別の設定
-dap.configurations.cpp = {
-    -- 複数指定することもできる
-    -- 複数あるとデバッグ開始時にどの設定使うか聞かれる
-    {
-        name = 'Launch file', -- optional
-        -- dap.adapters にあるデバッガから、どれを使うか
-        type = 'codelldb',
-        -- デバッガの起動
-        request = 'launch',
-        -- コンパイル時に -g オプションをつけてビルドした実行ファイルを指定する
-        program = function()
-            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/a.out', 'file')
-        end,
-        cwd = '${workspaceFolder}',
-        stopOnEntry = false
-    }
-}
+-- dap.configurations.cpp = {
+--     -- 複数指定することもできる
+--     -- 複数あるとデバッグ開始時にどの設定使うか聞かれる
+--     {
+--         name = 'Launch file', -- optional
+--         -- dap.adapters にあるデバッガから、どれを使うか
+--         type = 'lldb_server',
+--         -- type = 'cppdbg',
+--         -- デバッガの起動
+--         request = 'launch',
+--         -- コンパイル時に -g オプションをつけてビルドした実行ファイルを指定する
+--         program = function()
+--             return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/build/a.out', 'file')
+--         end,
+--         cwd = '${workspaceFolder}',
+--         stopOnEntry = false,
+--         args = {},
+--         -- terminal = 'integrated'
+--     },
+--     -- {
+--     --     name = 'Attach to gdbserver :1234',
+--     --     type = 'cppdbg',
+--     --     request = 'launch',
+--     --     MIMode = 'gdb',
+--     --     miDebuggerServerAddress = 'localhost:1234',
+--     --     -- miDebuggerPath = '/usr/local/bin/gdb',
+--     --     -- miDebuggerPath = '/usr/local/bin/gdb',
+--     --     miDebuggerPath = vim.fn.stdpath('data') .. '/mason/bin/codelldb',
+--     --     cwd = '${workspaceFolder}',
+--     --     program = function()
+--     --         return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+--     --     end,
+--     -- },
+-- }
+-- 
+-- require 'dap-python'.setup(python_path.filename)
+-- 
+-- table.insert(dap.configurations.python, {
+--     type = 'python',
+--     request = 'launch',
+--     name = 'Lauch in work',
+--     cwd = '${workspaceFolder}/work',
+--     program = '${file}',
+--     -- ... more options, see https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings
+-- })
 
-require'dap-python'.setup(python_path.filename)
+-- require('dap.ext.vscode').load_launchjs(nil, { codelldb = { 'c', 'cpp' } })
 
-table.insert(dap.configurations.python, {
-        type = 'python',
-        request = 'launch',
-        name = 'Lauch in work',
-        cwd = '${workspaceFolder}/work',
-        program = '${file}',
-        -- ... more options, see https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings
-    })
-
-require('dap.ext.vscode').load_launchjs(nil, { codelldb = {'c', 'cpp'} })
+-- text-case
+keymap('n', '<Leader>t', '<cmd>lua require("textcase").current_word("to_snake_case")<CR>', { noremap = true })
+keymap('v', '<Leader>t', '<cmd>lua require("textcase").current_word("to_snake_case")<CR>', { noremap = true })
+-- nnoremap gal :lua require('textcase').current_word('to_lower_case')<CR>
+-- nnoremap gas :lua require('textcase').current_word('to_snake_case')<CR>
+-- nnoremap gad :lua require('textcase').current_word('to_dash_case')<CR>
+-- nnoremap gan :lua require('textcase').current_word('to_constant_case')<CR>
+-- nnoremap gad :lua require('textcase').current_word('to_dot_case')<CR>
+-- nnoremap gaa :lua require('textcase').current_word('to_phrase_case')<CR>
+-- nnoremap gac :lua require('textcase').current_word('to_camel_case')<CR>
+-- nnoremap gap :lua require('textcase').current_word('to_pascal_case')<CR>
+-- nnoremap gat :lua require('textcase').current_word('to_title_case')<CR>
+-- nnoremap gaf :lua require('textcase').current_word('to_path_case')<CR>
+--
+-- nnoremap gaU :lua require('textcase').lsp_rename('to_upper_case')<CR>
+-- nnoremap gaL :lua require('textcase').lsp_rename('to_lower_case')<CR>
+-- nnoremap gaS :lua require('textcase').lsp_rename('to_snake_case')<CR>
+-- nnoremap gaD :lua require('textcase').lsp_rename('to_dash_case')<CR>
+-- nnoremap gaN :lua require('textcase').lsp_rename('to_constant_case')<CR>
+-- nnoremap gaD :lua require('textcase').lsp_rename('to_dot_case')<CR>
+-- nnoremap gaA :lua require('textcase').lsp_rename('to_phrase_case')<CR>
+-- nnoremap gaC :lua require('textcase').lsp_rename('to_camel_case')<CR>
+-- nnoremap gaP :lua require('textcase').lsp_rename('to_pascal_case')<CR>
+-- nnoremap gaT :lua require('textcase').lsp_rename('to_title_case')<CR>
+-- nnoremap gaF :lua require('textcase').lsp_rename('to_path_case')<CR>
+--
+-- nnoremap geu :lua require('textcase').operator('to_upper_case')<CR>
+-- nnoremap gel :lua require('textcase').operator('to_lower_case')<CR>
+-- nnoremap ges :lua require('textcase').operator('to_snake_case')<CR>
+-- nnoremap ged :lua require('textcase').operator('to_dash_case')<CR>
+-- nnoremap gen :lua require('textcase').operator('to_constant_case')<CR>
+-- nnoremap ged :lua require('textcase').operator('to_dot_case')<CR>
+-- nnoremap gea :lua require('textcase').operator('to_phrase_case')<CR>
+-- nnoremap gec :lua require('textcase').operator('to_camel_case')<CR>
+-- nnoremap gep :lua require('textcase').operator('to_pascal_case')<CR>
+-- nnoremap get :lua require('textcase').operator('to_title_case')<CR>
+-- nnoremap gef :lua require('textcase').operator('to_path_case')<CR>
+-- keymap('n', '/', '/\v', { noremap = true })
+keymap('n', '<Leader>mm', ':TermExec cmd="make" size=25 name=make<CR>', { noremap = true })
+keymap('n', '<Space><Space>', ':ToggleTermToggleAll<CR>', { noremap = true })
