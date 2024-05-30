@@ -80,6 +80,7 @@ require('lazy').setup({
 
     {
         "NeogitOrg/neogit",
+	tag = 'v0.0.1',
         dependencies = {
             "nvim-lua/plenary.nvim", -- required
             "sindrets/diffview.nvim", -- optional - Diff integration
@@ -92,18 +93,18 @@ require('lazy').setup({
     },
 
     -- DAP
-    -- 'mfussenegger/nvim-dap',
-    -- 'rcarriga/nvim-dap-ui',
-    -- 'theHamsta/nvim-dap-virtual-text',
-    -- {
-    --     "nvim-neotest/neotest",
-    --     dependencies = {
-    --         "nvim-lua/plenary.nvim",
-    --         "antoinemadec/FixCursorHold.nvim",
-    --         "nvim-treesitter/nvim-treesitter"
-    --     },
-    -- },
-    -- 'mfussenegger/nvim-dap-python',
+    'mfussenegger/nvim-dap',
+    'rcarriga/nvim-dap-ui',
+    'theHamsta/nvim-dap-virtual-text',
+    {
+        "nvim-neotest/neotest",
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+            "antoinemadec/FixCursorHold.nvim",
+            "nvim-treesitter/nvim-treesitter"
+        },
+    },
+    'mfussenegger/nvim-dap-python',
 
     -- IDE
     'folke/trouble.nvim',
@@ -641,7 +642,7 @@ local null_ls_sources = {
     -- Python
     -- none_ls.builtins.diagnostics.pyproject_flake8.with {
     --     filetypes = { 'python' },
-    --     command = { python_path:parent():joinpath('pflake8').filename },
+    --     command = { python_path:parent():joinpath('pflake8').filename }, -- pyproject-flake8
     -- },
     -- none_ls.builtins.diagnostics.flake8,
     -- none_ls.builtins.diagnostics.mypy.with {
@@ -658,6 +659,14 @@ local null_ls_sources = {
     --     filetypes = { 'python' },
     --     -- command = { python_path:parent():joinpath('usort').filename },
     -- },
+}
+require('lspconfig').ruff_lsp.setup {
+    init_options = {
+        settings = {
+            -- Any extra CLI arguments for `ruff` go here.
+            args = {},
+        }
+    }
 }
 
 -- 保存時のコードをフォーマットします。
