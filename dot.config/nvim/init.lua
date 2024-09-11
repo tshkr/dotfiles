@@ -609,7 +609,7 @@ mason_lspconfig.setup({
         -- 'fsautocomplete',
         'clangd',
         -- 'pyright',
-        'tsserver',
+        'ts_ls',
         'eslint',
         -- 'lua-language-server',
         'lua_ls',
