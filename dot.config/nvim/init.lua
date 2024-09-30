@@ -18,6 +18,17 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- local lazy_opts = {
+--     defaults = {
+--         lazy = true,
+--     },
+--     performance = {
+--         cache = {
+--             enabled = true,
+--         },
+--     },
+-- }
+
 require('lazy').setup({
     -- base
     -- 'lewis6991/impatient.nvim', -- No need with Lazy.nvim.
@@ -41,9 +52,21 @@ require('lazy').setup({
     },
 
     -- LSP
-    'neovim/nvim-lspconfig',
+    {'neovim/nvim-lspconfig',
+        config = function()
+
+            local signs = { Error = " ", Warn = " ", Hint = "󱩎 ", Info = " " }
+            -- local signs = { Error = "E ", Warn = "W ", Hint = "H ", Info = "I " }
+            -- local signs = { Error = "× ", Warn = " ", Hint = "💡", Info = "¡ " }
+            -- local signs = { Error = "× ", Warn = "",  Hint = "💡", Info = " ", }
+            for type, icon in pairs(signs) do
+                local hl = "DiagnosticSign" .. type
+                vim.fn.sign_define(hl, { text = icon, texthl = hl })
+            end
+        end
+    },
     { 'williamboman/mason.nvim',
-        cmd = { 'Mason', 'MasonInstall' },
+        cmd = { 'Mason', 'MasonInstall', 'MasonUninstall' ,'MasonUninstallAll', 'MasonLog', 'MasonUpdate'},
         event = { 'WinNew', 'WinLeave', 'BufRead' },
     },
     'williamboman/mason-lspconfig',
@@ -81,14 +104,15 @@ require('lazy').setup({
     {
         "NeogitOrg/neogit",
 	tag = 'v0.0.1',
-        dependencies = {
-            "nvim-lua/plenary.nvim", -- required
-            "sindrets/diffview.nvim", -- optional - Diff integration
-
-            -- Only one of these is needed, not both.
-            "nvim-telescope/telescope.nvim", -- optional
-            "ibhagwan/fzf-lua", -- optional
-        },
+        -- dependencies = {
+        --     "nvim-lua/plenary.nvim", -- required
+        --     "sindrets/diffview.nvim", -- optional - Diff integration
+        --
+        --     -- Only one of these is needed, not both.
+        --     "nvim-telescope/telescope.nvim", -- optional
+        --     "ibhagwan/fzf-lua", -- optional
+        -- },
+        cmd = { 'Neogit', '', 'NeogitResetState'},
         config = true
     },
 
@@ -98,11 +122,11 @@ require('lazy').setup({
     'theHamsta/nvim-dap-virtual-text',
     {
         "nvim-neotest/neotest",
-        dependencies = {
-            "nvim-lua/plenary.nvim",
-            "antoinemadec/FixCursorHold.nvim",
-            "nvim-treesitter/nvim-treesitter"
-        },
+        -- dependencies = {
+        --     "nvim-lua/plenary.nvim",
+        --     "antoinemadec/FixCursorHold.nvim",
+        --     "nvim-treesitter/nvim-treesitter"
+        -- },
     },
     'mfussenegger/nvim-dap-python',
 
@@ -111,7 +135,12 @@ require('lazy').setup({
     'lambdalisue/fern.vim',
     'simrat39/symbols-outline.nvim',
     'SmiteshP/nvim-navic',
-    'kyazdani42/nvim-tree.lua',
+    {'kyazdani42/nvim-tree.lua',
+            -- view = {
+            --     side = "left"
+            -- }
+    },
+
     -- 'mattn/vim-findroot',
 
     -- Git
@@ -660,14 +689,14 @@ local null_ls_sources = {
     --     -- command = { python_path:parent():joinpath('usort').filename },
     -- },
 }
-require('lspconfig').ruff_lsp.setup {
-    init_options = {
-        settings = {
-            -- Any extra CLI arguments for `ruff` go here.
-            args = {},
-        }
-    }
-}
+-- require('lspconfig').ruff_lsp.setup {
+--     init_options = {
+--         settings = {
+--             -- Any extra CLI arguments for `ruff` go here.
+--             args = {},
+--         }
+--     }
+-- }
 
 -- 保存時のコードをフォーマットします。
 local lsp_formatting = function(bufnr)
@@ -977,6 +1006,7 @@ require 'nvim-tree'.setup {
         --         -- { key = "u", action = "dir_up" },
         --     },
         -- },
+        -- side = "right"
     },
     renderer = {
         group_empty = true,
@@ -1434,3 +1464,4 @@ keymap('v', '<Leader>t', '<cmd>lua require("textcase").current_word("to_snake_ca
 -- keymap('n', '/', '/\v', { noremap = true })
 keymap('n', '<Leader>mm', ':TermExec cmd="make" size=25 name=make<CR>', { noremap = true })
 keymap('n', '<Space><Space>', ':ToggleTermToggleAll<CR>', { noremap = true })
+

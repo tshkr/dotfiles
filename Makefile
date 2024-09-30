@@ -10,7 +10,7 @@ TMUX_TPM = ${HOME}/dotfiles/dots/tmux/plugins/tpm
 NVIM = ${HOME}/.config/nvim
 
 .PHONY: neovim
-NEOVIM_VER = v0.9.5
+NEOVIM_VER = v0.10.1
 NEOVIM_BIN = $(INSTALL_DIR)/bin/nvim
 NEOVIM_GIT = $(TMP_DIR)/neovim
 neovim: $(NEOVIM_BIN)
@@ -62,8 +62,8 @@ $(NEOVIM_GIT): $(TMP_DIR)
 
 $(NEOVIM_BIN): $(NEOVIM_GIT) Makefile
 	cd $< && git pull origin master
-	cd $< && git fetch --tags
-	cd $< && git checkout refs/tags/$(NEOVIM_VER)
+	# cd $< && git fetch --tags
+	cd $< && git checkout tags/$(NEOVIM_VER)
 	cd $< && make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_INSTALL_PREFIX=$(INSTALL_DIR)
 	cd $< && make install
 
